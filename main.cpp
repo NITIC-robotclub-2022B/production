@@ -65,10 +65,12 @@ int main(){
         get_data();
         printf("m:%d L:%d R:%d Lx%d Ly%d\n",button_maru,L1,R1,Lx,Ly);
         
-        //ジョイコン処理
         moved_asimawari = 0;
         moved_anglechange_horizontal = 0;
 
+        //ジョイコン処理
+
+/*
         if(Lx != 0 || Ly != 0){
             double value_ru,value_rs,value_lu,value_ls;   //右上,右下,左上,左下
             char data_ru,data_rs,data_lu,data_ls;
@@ -90,7 +92,67 @@ int main(){
             send_asimawari(data_ru, data_rs, data_ls, data_lu);
             moved_asimawari = 1;
         }
+*/
 
+        if(ps3.getButtonState(PS3::ue)){
+            if(ps3.getButtonState(PS3::migi)){
+                //右前方向
+                send(ADDRESS_HIDARI_UE,0x00);
+                send(ADDRESS_MIGI_SITA,0xff);
+                
+            }else if(ps3.getButtonState(PS3::hidari)){
+                //左前方向
+                send(ADDRESS_MIGI_UE,0xff);
+                send(ADDRESS_HIDARI_SITA,0x00);
+                
+            }else{
+                //前進
+                send(ADDRESS_MIGI_UE,0xff);
+                send(ADDRESS_HIDARI_UE,0x00);
+                send(ADDRESS_HIDARI_SITA,0x00);
+                send(ADDRESS_MIGI_SITA,0xff);
+            }
+            
+        }else if(ps3.getButtonState(PS3::sita)){
+            if(ps3.getButtonState(PS3::migi)){
+                //右後方向
+                send(ADDRESS_MIGI_UE,0x00);
+                send(ADDRESS_HIDARI_SITA,0xff);
+                
+            }else if(PS3::hidari){
+                //左後方向
+                send(ADDRESS_HIDARI_UE,0xff);
+                send(ADDRESS_MIGI_SITA,0x00);
+                
+            }else{
+                //後進
+                send(ADDRESS_MIGI_UE,0x00);
+                send(ADDRESS_HIDARI_UE,0xff);
+                send(ADDRESS_HIDARI_SITA,0xff);
+                send(ADDRESS_MIGI_SITA,0x00);
+            }
+            
+        }else if(ps3.getButtonState(PS3::hidari)){
+            //左方向
+            send(ADDRESS_MIGI_UE,0xff);
+            send(ADDRESS_HIDARI_UE,0xff);
+            send(ADDRESS_HIDARI_SITA,0x00);
+            send(ADDRESS_MIGI_SITA,0x00);
+            
+        }else if(ps3.getButtonState(PS3::migi)){
+            //右方向
+            send(ADDRESS_MIGI_UE,0x00);
+            send(ADDRESS_HIDARI_UE,0x00);
+            send(ADDRESS_HIDARI_SITA,0xff);
+            send(ADDRESS_MIGI_SITA,0xff);
+            
+        }else{
+            //停止
+            send(ADDRESS_MIGI_UE,0x80);
+            send(ADDRESS_HIDARI_UE,0x80);
+            send(ADDRESS_HIDARI_SITA,0x80);
+            send(ADDRESS_MIGI_SITA,0x80);
+        }
         //機体左に旋回
         if(L1 && !moved_asimawari){
             motordata_asimawari = 0x60;
@@ -126,11 +188,12 @@ int main(){
             Air = 1;
         }
 
-        //足回り静止
+/*        //足回り静止
         if(!moved_asimawari){
             motordata_asimawari = 0x80;  
             send_asimawari(motordata_asimawari,motordata_asimawari,motordata_asimawari,motordata_asimawari);
         }
+*/
         //砲台停止
         if(!moved_anglechange_horizontal){
             motordata_anglechange_horizontal = 0x80;
