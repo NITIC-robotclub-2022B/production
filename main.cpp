@@ -1,18 +1,20 @@
 #include "mbed.h"
 #include "PS3.h"
 #include "mbed_wait_api.h"
+#include "QEI.h"
 
-#define ADDRESS_MIGI_UE 0x40
+#define ADDRESS_MIGI_UE 0x14
 #define ADDRESS_MIGI_SITA 0x22
-#define ADDRESS_HIDARI_UE 0x24
+#define ADDRESS_HIDARI_UE 0x40
 #define ADDRESS_HIDARI_SITA 0x30
-#define ADDRESS_ROLLER 0x00
-#define ADDRESS_ANGLECHANGE_VERTICAL 0x00
-#define ADDRESS_ANGLECHANGE_HORIZONTAL 0x00
+#define ADDRESS_ROLLER 0x10
+#define ADDRESS_ANGLECHANGE_VERTICAL 0x20
+#define ADDRESS_ANGLECHANGE_HORIZONTAL 0x60
 
 I2C i2c(D14,D15);
 PS3 ps3 (A0,A1);
 DigitalOut sig(D13);
+DigitalOut Air(PC_8);
 
 void send(char add,char data);
 void send_asimawari(char d_mu, char d_ms, char d_hs, char d_hu);
@@ -46,6 +48,8 @@ int main(){
     bool moved_anglechange_horizontal;
 
     while (true) {
+        Air = 0;
+        
         //緊急停止
         if(ps3.getSELECTState()){
             sig = 1;
@@ -75,10 +79,10 @@ int main(){
             value_rs = 0.7071*((double)Ly+(double)Lx)*-1;//逆転
             value_lu = 0.7071*((double)Ly+(double)Lx);   //正転
 
-            data_ru = move_value(value_ru)*0.8;//最大出力は速すぎると思ったので８割の出力にしている
-            data_rs = move_value(value_rs)*0.8;
-            data_lu = move_value(value_lu)*0.8;
-            data_ls = move_value(value_ls)*0.8;
+            data_ru = move_value(value_ru);
+            data_rs = move_value(value_rs);
+            data_lu = move_value(value_lu);
+            data_ls = move_value(value_ls);
             
             send_asimawari(data_ru, data_rs, data_ls, data_lu);
             moved_asimawari = 1;
@@ -109,6 +113,14 @@ int main(){
             motordata_anglechange_horizontal = 0xd0;
             send(ADDRESS_ANGLECHANGE_HORIZONTAL, motordata_anglechange_horizontal);
             moved_anglechange_horizontal = 1;
+        }
+
+        if(button_maru){
+            send(ADDRESS_ROLLER, 0x5e);
+        }
+
+        if(button_sankaku){
+            Air = 1;
         }
 
         //足回り静止
