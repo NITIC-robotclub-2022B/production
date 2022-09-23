@@ -7,8 +7,8 @@
 #define ADDRESS_MIGI_SITA 0x22
 #define ADDRESS_HIDARI_UE 0x40
 #define ADDRESS_HIDARI_SITA 0x30
-#define ADDRESS_ROLLER 0x10
-#define ADDRESS_ANGLECHANGE_VERTICAL 0x20
+#define ADDRESS_ROLLER 0x24
+#define ADDRESS_ANGLECHANGE_VERTICAL 0x18
 #define ADDRESS_ANGLECHANGE_HORIZONTAL 0x60
 
 I2C i2c(D14,D15);
@@ -49,7 +49,7 @@ int main(){
 
     while (true) {
         Air = 0;
-        
+
         //緊急停止
         if(ps3.getSELECTState()){
             sig = 1;
